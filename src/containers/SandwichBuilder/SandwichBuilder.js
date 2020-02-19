@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Sandwich from '../../components/Sandwich/Sandwich'
 import BuildControls from '../../components/Sandwich/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal'
-import Aux from '../../hoc/Aux';
+import Aux from '../../hoc/Aux/Aux';
 import OrderSummary from '../../components/OrderSummary/OrderSummary'
 
 const INGREDIENT_PRICES = {
@@ -68,7 +68,7 @@ class SandwichBuilder extends Component {
         }
         return (
             <Aux>
-                <Modal closeModal={this.purchaseCancelHandler} show={this.state.purchasing}>
+                <Modal close={this.purchaseCancelHandler} show={this.state.purchasing}>
                     <OrderSummary onCancel={this.purchaseCancelHandler} onContinue={this.purchaseContinueHandler} ingrediants={this.state.ingrediants}></OrderSummary>
                 </Modal>
                 <Sandwich ingrediants={this.state.ingrediants}></Sandwich>

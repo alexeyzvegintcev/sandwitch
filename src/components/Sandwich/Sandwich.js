@@ -3,11 +3,14 @@ import classes from './Sandwich.module.css'
 import SandwichIngredient from '../Ingredients/SandwichIngredient';
 
 const sandwich = (props) =>{
-    const allIngrediants = Object.keys(props.ingrediants).map((key) =>{
-        return [...Array(props.ingrediants[key])].map( (_, i)=>{
-            return <SandwichIngredient key={key+i} type={key}/>
+    let allIngrediants = Object.keys(props.ingrediants).map((ikey) =>{
+        return [...Array(props.ingrediants[ikey])].map( (_, i)=>{
+            return <SandwichIngredient key={ikey+i} type={ikey}/>
         })
-    })
+    }).reduce((arr, el)=>{return arr.concat(el)}, [])
+    if (allIngrediants.length === 0){
+        allIngrediants = <p>Start addidng ingrediants</p>
+    }
     return (
         <div className={classes.Sandwich}>
             <SandwichIngredient type='bread-top'/>

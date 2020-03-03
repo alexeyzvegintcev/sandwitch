@@ -4,6 +4,8 @@ import BuildControls from '../../components/Sandwich/BuildControls/BuildControls
 import Modal from '../../components/UI/Modal/Modal'
 import Aux from '../../hoc/Aux/Aux';
 import OrderSummary from '../../components/OrderSummary/OrderSummary'
+import axios from '../../axios-orders';
+import Spiner from '../../components/UI/Spiner/Spiner';
 
 const INGREDIENT_PRICES = {
     meat: 3,
@@ -21,11 +23,22 @@ class SandwichBuilder extends Component {
         },
         totalPrice: 4,
         isPurchasable: false,
-        purchasing: false
+        purchasing: false,
+        summaryLoading: false,
+        error: false
+    }
+
+    componentDidMount () {
+        axios.get( 'https://sandwich-react.firebaseio.com/ingredients.json' )
+            .then( response => {
+                this.setState( { ingrediants: response.data } );
+            } )
+            .catch( error => {
+                this.setState( { error: true } );
+            } );
     }
 
     updateParchasable = (ing) => {
-        console.log(Object.values(ing).reduce((a, b) => a + b))
         this.setState({ isPurchasable: (Object.values(ing).reduce((a, b) => a + b) > 0) })
     }
 
@@ -58,7 +71,21 @@ class SandwichBuilder extends Component {
     }
 
     purchaseContinueHandler = ()=> {
-        alert("Continue!!!")
+        const data = {
+            ingrediants: this.state.ingrediants,
+            price: this.state.totalPrice,
+        customer:{
+            name: 'zveg',
+            address: {
+                street: 'bla-bla'
+            }
+        }}
+        this.setState({summaryLoading: true})
+        axios.post('/orders.json', data).then(response =>{
+            console.log(response)
+            setTimeout(()=>this.setState({summaryLoading: false}), 2000)
+            
+        })
     }
 
     render() {
@@ -66,22 +93,35 @@ class SandwichBuilder extends Component {
         for (let key in disabledInfo) {
             disabledInfo[key] = disabledInfo[key] <= 0
         }
+        let orderSummary = null
+        let sandwich = this.state.error ? <p>Ingredients can't be loaded!</p> : <Spiner />;
+        if (this.state.summaryLoading){
+            orderSummary = <Spiner/>
+        } else {
+            orderSummary = <OrderSummary 
+        onCancel={this.purchaseCancelHandler} 
+        onContinue={this.purchaseContinueHandler} 
+        ingrediants={this.state.ingrediants}></OrderSummary>
+        }
+        if ( this.state.ingrediants ) {
+            sandwich=<Aux>
+            <Modal close={this.purchaseCancelHandler} show={this.state.purchasing}>
+                {orderSummary}
+            </Modal>
+            <Sandwich ingrediants={this.state.ingrediants}></Sandwich>
+            <BuildControls
+                onAdd={this.addHandler}
+                onRemove={this.removeHandler}
+                disabled={disabledInfo}
+                price={this.state.totalPrice}
+                isPurchasable={this.state.isPurchasable}
+                onOrder={this.purchasHandler}
+                onPuchase={this.purchasHandler}
+            />
+        </Aux>
+        }
         return (
-            <Aux>
-                <Modal close={this.purchaseCancelHandler} show={this.state.purchasing}>
-                    <OrderSummary onCancel={this.purchaseCancelHandler} onContinue={this.purchaseContinueHandler} ingrediants={this.state.ingrediants}></OrderSummary>
-                </Modal>
-                <Sandwich ingrediants={this.state.ingrediants}></Sandwich>
-                <BuildControls
-                    onAdd={this.addHandler}
-                    onRemove={this.removeHandler}
-                    disabled={disabledInfo}
-                    price={this.state.totalPrice}
-                    isPurchasable={this.state.isPurchasable}
-                    onOrder={this.purchasHandler}
-                    onPuchase={this.purchasHandler}
-                />
-            </Aux>
+            sandwich
         );
     }
 }

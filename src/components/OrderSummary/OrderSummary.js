@@ -7,7 +7,7 @@ class orderSummary extends React.Component {
         console.log("Order Summary Will Update")
     }
 
-    summary = Object.keys(this.props.ingrediants).map(iKey => {
+    summary = () => Object.keys(this.props.ingrediants).map(iKey => {
         return (<li key={iKey}>
             <span style={{ textTransform: 'capitalize' }}>{iKey}</span>: {this.props.ingrediants[iKey]}
         </li>
@@ -19,7 +19,7 @@ class orderSummary extends React.Component {
                 <h3>Your Order</h3>
                 <p>Igredients:</p>
                 <ul>
-                    {this.summary}
+                    {this.summary()}
                 </ul>
                 <p>Continue or Checkout</p>
                 <Button btnType="Danger" clicked={this.props.onCancel}>Cancel</Button>
